@@ -1,6 +1,11 @@
 # cpp-seaplusplus-project
 A fish checker application, written in C++
 
+To compile, run the command:
+g++ *.cpp -o seapluspluschecker
+and then to run the exe:
+.\seapluspluschecker.exe
+
 Author: Sebastien Dundas  
 Project: Professional Software Development SeaPlusPlus Checker  
 Date: Semester 1, 2025  
