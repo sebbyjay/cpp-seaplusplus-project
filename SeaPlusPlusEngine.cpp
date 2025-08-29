@@ -26,3 +26,28 @@ std::string SeaPlusPlusEngine::validateCatch(SeaCreature* creature) {
     return "Catch is not allowed by any checker.";
 }
 
+void SeaPlusPlusEngine::addToBag(SeaCreature* creature) {
+    currentBag.addCreature(creature);  // Use addCreature instead of addCatch
+}
+
+std::string SeaPlusPlusEngine::validateBag(Bag* bag) {
+    const std::vector<SeaCreature*>& creatures = bag->getCreatures();
+    for (SeaCreature* creature : creatures) {
+        bool valid = false;
+
+        for (SeaChecker* checker : checkers) {
+            if ((checker->getCheckerType() == "VertebrateChecker" && creature->getType() == "vertebrate") ||
+                (checker->getCheckerType() == "InvertebrateChecker" && creature->getType() == "invertebrate")) {
+                valid = checker->check(creature);
+                break;
+            }
+        }
+
+        if (!valid) {
+            return "Invalid catch found in bag.";
+        }
+    }
+
+    return "All catches in the bag are valid.";
+}
+

@@ -3,17 +3,43 @@
 #include "InvertebrateCreature.h"
 #include "VertebrateChecker.h"
 #include "InvertebrateChecker.h"
+#include "BagChecker.h"
 #include <iostream>
+#include <limits>
 
 App::App() : engine(new SeaPlusPlusEngine()), currentAngler("DefaultAngler") {
     engine->regChecker(new VertebrateChecker());
-    engine->regChecker(new InvertebrateChecker()); // Start the checkers from the engine
+    engine->regChecker(new InvertebrateChecker());
 }
 
 void App::run() {
     std::cout << "Welcome to the Sea++ System" << std::endl;
-    anglerInput();
+
+    char continueInput = 'y';
+    while (continueInput == 'y' || continueInput == 'Y') {
+        anglerInput();
+        std::cout << "Add another creature? (y/n): ";
+        std::cin >> continueInput;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    std::cout << "\nAll catches recorded.\n";
+
+    // Create a temporary bag to check
+    Bag tempBag;
+    for (SeaCreature* c : currentAngler.getCatches()) {
+        tempBag.addCreature(c);
+    }
+
+    // Check the bag for limits
+    BagChecker bagChecker;
+    if (bagChecker.check(&tempBag)) {
+        std::cout << "Bag passed the bag limit check.\n";
+    } else {
+        std::cout << "Bag failed the bag limit check! Some species exceeded the bag limit.\n";
+    }
 }
+
 
 void App::anglerInput() {
     std::string type, name;
@@ -34,20 +60,18 @@ void App::anglerInput() {
     std::cin >> hasEggsChar;
     hasEggs = (hasEggsChar == 'y' || hasEggsChar == 'Y');
 
-    SeaCreature* creature = nullptr;  // Always initialize pointers for safety, otherwise bad stuff happens
+    SeaCreature* creature = nullptr;
 
-    // Create the appropriate type of SeaCreature based on user input
     if (type == "vertebrate") {
         creature = new VertebrateCreature(name, size, hasEggs);
-        validateCatch(creature);   
+        validateCatch(creature);
     } else if (type == "invertebrate") {
         creature = new InvertebrateCreature(name, size, hasEggs);
-        validateCatch(creature);   
+        validateCatch(creature);
     }
 
-    // nullptr check ensures that an invalid type won't be processed
-    if (creature != nullptr) {              // Send creature to engine for validation via registered checkers
-        currentAngler.addCatch(creature);    // Store the creature in the angler's catch list
+    if (creature != nullptr) {
+        currentAngler.addCatch(creature);
     } else {
         std::cout << "Invalid creature type entered." << std::endl;
     }
@@ -58,13 +82,8 @@ void App::validateCatch(SeaCreature* creature) {
     std::cout << result << std::endl;
 }
 
-// Static main function to run the application
 int App::main() {
-    // Create an instance of the App class
     App app;
-
-    // Run the app
     app.run();
-
     return 0;
 }
